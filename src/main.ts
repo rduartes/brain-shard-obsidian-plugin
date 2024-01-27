@@ -1,13 +1,13 @@
 import {App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, TFile} from 'obsidian';
 import {StartCounterModal} from "src/StartCounterModal";
-import {FocusTimer} from "./src/FocusTimer";
-import {Logger} from "./src/Logger";
+import {FocusTimer} from "./FocusTimer";
+import {Logger} from "./Logger";
 
 
 // Remember to rename these classes and interfaces!
 
 interface BrainShardSettings {
-	defaultProperty: string;
+	defaultTimeProperty: string;
 	defaultRestDuration: string;
 	defaultDashDuration: string;
 }
@@ -15,7 +15,7 @@ interface BrainShardSettings {
 const DEFAULT_SETTINGS: BrainShardSettings = {
 	defaultDashDuration: '25',
 	defaultRestDuration: '5',
-	defaultProperty: 'Effort'
+	defaultTimeProperty: 'Effort'
 }
 
 export default class BrainShardPlugin extends Plugin {
@@ -37,13 +37,13 @@ export default class BrainShardPlugin extends Plugin {
 		this.statusBarEl.setText(message);
 	}
 
-	onTimerDashCompleted() {
+	onTimerDashCompleted(dashDuration:number) {
 		const activeFile:TFile | null = this.app.workspace.getActiveFile();
 		if(activeFile) {
 			this.app.fileManager.processFrontMatter(
 				activeFile,
 				(properties) => {
-					Logger.log(properties)
+					properties[this.settings.defaultTimeProperty] += dashDuration;
 				}
 			);
 		}
@@ -180,9 +180,9 @@ class BrainShardSettingsTab extends PluginSettingTab {
 			.setDesc('This is the document property where the dash sessions will be added to. Must be numeric.')
 			.addText(text => text
 				.setPlaceholder('Note property')
-				.setValue(this.plugin.settings.defaultProperty)
+				.setValue(this.plugin.settings.defaultTimeProperty)
 				.onChange(async (value) => {
-					this.plugin.settings.defaultProperty = value;
+					this.plugin.settings.defaultTimeProperty = value;
 					await this.plugin.saveSettings();
 				}))
 	}

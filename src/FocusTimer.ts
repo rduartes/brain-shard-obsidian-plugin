@@ -1,4 +1,4 @@
-import BrainShardPlugin from "../main";
+import BrainShardPlugin from "./main";
 import {Logger} from "./Logger";
 
 export class FocusTimer {
@@ -7,7 +7,7 @@ export class FocusTimer {
 	plugin: BrainShardPlugin; //I need the plugin to access the status bar
 	focusInterval: number;
 	onTick:(elapsed:number, duration:number) => void;
-	onDashComplete:() => void;
+	onDashComplete: (focusDurationInMinutes: number) => void;
 	constructor(plugin:BrainShardPlugin) {
 		this.plugin = plugin;
 	}
@@ -31,6 +31,6 @@ export class FocusTimer {
 
 	private focusDashCompleted() {
 		clearInterval(this.focusInterval);
-		this.onDashComplete();
+		this.onDashComplete(this.focusDurationInMinutes);
 	}
 }
