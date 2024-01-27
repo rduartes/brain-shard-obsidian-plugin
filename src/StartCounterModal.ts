@@ -1,14 +1,17 @@
 import {App, Modal, Setting} from "obsidian";
+import {FocusTimer} from "./FocusTimer";
 
 export class StartCounterModal extends Modal {
 
-	time:number;
+	duration: number;
+	defaultDuration: string;
+	focusTimer: FocusTimer;
 
-	onSubmit: (time: number) => void;
-
-	constructor(app: App, onSubmit: (time: number) => void) {
+	constructor(app: App, timer: FocusTimer, defaultDuration: string) {
 		super(app);
-		this.onSubmit = onSubmit;
+		this.defaultDuration = defaultDuration;
+		this.duration = Number(defaultDuration);
+		this.focusTimer = timer;
 	}
 
 	onOpen() {
@@ -17,23 +20,24 @@ export class StartCounterModal extends Modal {
 		contentEl.createEl("h4", {text: "For how long do you want to focus?"});
 
 		new Setting(contentEl)
-			.setName("Time")
+			.setName("Duration")
 			.setDesc('(in minutes)')
 			.addText((text) => {
+				text.setValue(this.defaultDuration)
 				text.onChange((value) => {
-					this.time = Number(value);
+					this.duration = Number(value);
 				})
 			});
 
 		new Setting(contentEl)
 			.addButton((btn) =>
 				btn.setButtonText("Start")
-					.setCta() // cta - call to action (paints the button in the active color)
+					.setCta() // cta - call to action (paints the button using the active color)
 					.onClick(() => {
 						this.close();
-						this.onSubmit(this.time)
+						this.focusTimer.start(this.duration);
 					})
-			)
+			);
 	}
 
 	onClose() {

@@ -1,48 +1,80 @@
-import { App, Editor, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import {App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, TFile} from 'obsidian';
 import {StartCounterModal} from "src/StartCounterModal";
+import {FocusTimer} from "./src/FocusTimer";
+import {Logger} from "./src/Logger";
 
 
 // Remember to rename these classes and interfaces!
 
-interface MyPluginSettings {
-	mySetting: string;
+interface BrainShardSettings {
+	defaultProperty: string;
+	defaultRestDuration: string;
+	defaultDashDuration: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+const DEFAULT_SETTINGS: BrainShardSettings = {
+	defaultDashDuration: '25',
+	defaultRestDuration: '5',
+	defaultProperty: 'Effort'
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class BrainShardPlugin extends Plugin {
+	settings: BrainShardSettings;
+	statusBarEl: HTMLElement;
+	focusTimer:FocusTimer;
 
-	handleTimeStart(time:number) {
-		new Notice(`Very well! You are about to embark in a super productive trip for ${time} minutes!`);
-		let counter = 5
-		const interval = setInterval(function() {
-			if(counter == 0) {
-				clearInterval(interval);
-			} else {
-				new Notice('5 seconds gone')
-				counter -= 1;
-			}
-		}, 5000)
+
+	onTimerTick(elapsed: number, duration:number) {
+		
+		let message = '';
+
+		if (elapsed == duration -1 ) {
+			message = `Brain Shard Focus: Almost there! Only ${duration - elapsed} minute to go! Hang on, you can do it!`;
+		} else {
+			message = `Brain Shard Focus: ${elapsed} minutes of ${duration}.`;
+		}
+		Logger.log(this, message);
+		this.statusBarEl.setText(message);
+	}
+
+	onTimerDashCompleted() {
+		const activeFile:TFile | null = this.app.workspace.getActiveFile();
+		if(activeFile) {
+			this.app.fileManager.processFrontMatter(
+				activeFile,
+				(properties) => {
+					Logger.log(properties)
+				}
+			);
+		}
+		Logger.log(this, 'Well done! Dash completed. Time to rest!');
 	}
 
 	async onload() {
 		await this.loadSettings();
 
+		Logger.shouldLog = true;
+
+		this.focusTimer = new FocusTimer(this);
+		this.focusTimer.onTick = this.onTimerTick.bind(this);
+		this.focusTimer.onDashComplete = this.onTimerDashCompleted.bind(this);
+
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('baby', 'Sample Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			//new Notice('This is a notice!');
-			new StartCounterModal(this.app, this.handleTimeStart).open();
+			// new Notice('This is a notice!');
+			new StartCounterModal(
+				this.app,
+				this.focusTimer,
+				this.settings.defaultDashDuration
+			).open();
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
 
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
+		this.statusBarEl = this.addStatusBarItem();
+		this.statusBarEl.setText('BrainShard Plugin');
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
@@ -57,7 +89,7 @@ export default class MyPlugin extends Plugin {
 			id: 'sample-editor-command',
 			name: 'Sample editor command',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
+				Logger.log(editor.getSelection());
 				editor.replaceSelection('Sample Editor Command');
 			}
 		});
@@ -82,16 +114,16 @@ export default class MyPlugin extends Plugin {
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(new BrainShardSettingsTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
+			Logger.log('click', evt);
 		});
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+		this.registerInterval(window.setInterval(() => Logger.log('setInterval'), 5 * 60 * 1000));
 	}
 
 	onunload() {
@@ -100,6 +132,7 @@ export default class MyPlugin extends Plugin {
 
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		// console.dir(this.settings);
 	}
 
 	async saveSettings() {
@@ -107,10 +140,10 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+class BrainShardSettingsTab extends PluginSettingTab {
+	plugin: BrainShardPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: BrainShardPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -121,14 +154,36 @@ class SampleSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('Default Dash duration')
+			.setDesc('These are the periods of time you will remain focused on one Vault Item.')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setPlaceholder('dash duration in minutes')
+				.setValue(this.plugin.settings.defaultDashDuration)
 				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.defaultDashDuration = value;
 					await this.plugin.saveSettings();
 				}));
+
+		new Setting(containerEl)
+			.setName('Default Rest duration')
+			.setDesc('This is the default duration for the resting periods between focus dashes.')
+			.addText(text => text
+				.setPlaceholder('Rest duration in minutes')
+				.setValue(this.plugin.settings.defaultRestDuration)
+				.onChange(async (value) => {
+					this.plugin.settings.defaultRestDuration = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Default note property to store effort')
+			.setDesc('This is the document property where the dash sessions will be added to. Must be numeric.')
+			.addText(text => text
+				.setPlaceholder('Note property')
+				.setValue(this.plugin.settings.defaultProperty)
+				.onChange(async (value) => {
+					this.plugin.settings.defaultProperty = value;
+					await this.plugin.saveSettings();
+				}))
 	}
 }
