@@ -16,7 +16,7 @@ export class FocusTimer {
 		Logger.log(this,`Timer starting with ${focusDuration} minutes`);
 		this.focusDurationInMinutes = focusDuration;
 		this.elapsedTime = 0;
-		this.focusInterval = window.setInterval(this.tick.bind(this), 5000);
+		this.focusInterval = window.setInterval(this.tick.bind(this), 60000);
 		this.plugin.registerInterval(this.focusInterval);
 	}
 
