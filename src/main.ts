@@ -75,6 +75,9 @@ export default class BrainShardPlugin extends Plugin {
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		this.statusBarEl = this.addStatusBarItem();
 		this.statusBarEl.setText('BrainShard Plugin');
+		this.statusBarEl.onClickEvent((clickEvt: MouseEvent) => {
+			Logger.log('Message clicked');
+		});
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
