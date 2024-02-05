@@ -2,6 +2,7 @@ import {App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, TFile} fro
 import {StartCounterModal} from "src/StartCounterModal";
 import {FocusTimer} from "./FocusTimer";
 import {Logger} from "./Logger";
+import {TimerState} from "./TimerState";
 
 
 // Remember to rename these classes and interfaces!
@@ -38,6 +39,7 @@ export default class BrainShardPlugin extends Plugin {
 	}
 
 	onTimerDashCompleted(dashDuration:number) {
+		this.focusTimer.state = TimerState.Completed;
 		const activeFile:TFile | null = this.app.workspace.getActiveFile();
 		if(activeFile) {
 			this.app.fileManager.processFrontMatter(
@@ -47,7 +49,7 @@ export default class BrainShardPlugin extends Plugin {
 				}
 			);
 		}
-		Logger.log(this, 'Well done! Dash completed. Time to rest!');
+		this.statusBarEl.setText('Well done! Dash completed. Time to rest!');
 	}
 
 	async onload() {
@@ -60,7 +62,7 @@ export default class BrainShardPlugin extends Plugin {
 		this.focusTimer.onDashComplete = this.onTimerDashCompleted.bind(this);
 
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('baby', 'Sample Plugin', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('baby', 'Brain Shard Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			// new Notice('This is a notice!');
 			new StartCounterModal(
@@ -76,7 +78,15 @@ export default class BrainShardPlugin extends Plugin {
 		this.statusBarEl = this.addStatusBarItem();
 		this.statusBarEl.setText('BrainShard Plugin');
 		this.statusBarEl.onClickEvent((clickEvt: MouseEvent) => {
-			Logger.log('Message clicked');
+			if(this.focusTimer.state == TimerState.Paused) {
+				Logger.log(this, 'Message clicked: Resuming the timer');
+				this.focusTimer.resume();
+				this.statusBarEl.setText('Brain Shard: Dash resumed');
+			} else {
+				Logger.log(this, 'Message clicked: Pausing the timer');
+				this.focusTimer.pause();
+				this.statusBarEl.setText('Brain Shard: Dash paused');
+			}
 		});
 
 		// This adds a simple command that can be triggered anywhere
