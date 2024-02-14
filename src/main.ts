@@ -1,6 +1,6 @@
 import {App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, TFile} from 'obsidian';
 import {StartCounterModal} from "src/StartCounterModal";
-import {FocusTimer} from "./FocusTimer";
+import {DashTimer} from "./DashTimer";
 import {Logger} from "./Logger";
 import {TimerState} from "./TimerState";
 
@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS: BrainShardSettings = {
 export default class BrainShardPlugin extends Plugin {
 	settings: BrainShardSettings;
 	statusBarEl: HTMLElement;
-	focusTimer:FocusTimer;
+	focusTimer:DashTimer;
 
 
 	onTimerTick(elapsed: number, duration:number) {
@@ -57,7 +57,7 @@ export default class BrainShardPlugin extends Plugin {
 
 		Logger.shouldLog = true;
 
-		this.focusTimer = new FocusTimer(this);
+		this.focusTimer = new DashTimer(this);
 		this.focusTimer.onTick = this.onTimerTick.bind(this);
 		this.focusTimer.onDashComplete = this.onTimerDashCompleted.bind(this);
 

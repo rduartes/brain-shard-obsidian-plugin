@@ -1,13 +1,13 @@
 import {App, Modal, Setting} from "obsidian";
-import {FocusTimer} from "./FocusTimer";
+import {DashTimer} from "./DashTimer";
 
 export class StartCounterModal extends Modal {
 
 	duration: number;
 	defaultDuration: string;
-	focusTimer: FocusTimer;
+	focusTimer: DashTimer;
 
-	constructor(app: App, timer: FocusTimer, defaultDuration: string) {
+	constructor(app: App, timer: DashTimer, defaultDuration: string) {
 		super(app);
 		this.defaultDuration = defaultDuration;
 		this.duration = Number(defaultDuration);

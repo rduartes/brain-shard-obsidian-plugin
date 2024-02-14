@@ -2,13 +2,15 @@ import BrainShardPlugin from "./main";
 import {Logger} from "./Logger";
 import {TimerState} from "./TimerState";
 
-export class FocusTimer {
+export class DashTimer {
 
 	focusDurationInMinutes:number;
 	elapsedTime: number;
 	plugin: BrainShardPlugin; //I need the plugin to access the status bar
 	focusInterval: number;
 	state: TimerState;
+	startTime: number;
+	wasPaused:boolean; //This property is used to verify whether a dash was paused, which means that it shouldn't be considered a dash (no rest and no registration of dashes)
 
 	onTick:(elapsed:number, duration:number) => void;
 	onDashComplete: (focusDurationInMinutes: number) => void;
@@ -20,8 +22,9 @@ export class FocusTimer {
 	start(focusDuration: number) {
 		Logger.log(this,`Timer starting with ${focusDuration} minutes`);
 		this.focusDurationInMinutes = focusDuration;
+		this.startTime = Date.now();
 		this.elapsedTime = 0;
-		this.focusInterval = window.setInterval(this.tick.bind(this), 60000); //todo: Ticks should be smaller in conjunction with the ellapsed time change to respond more accurately when resuming a paused dash
+		this.focusInterval = window.setInterval(this.tick.bind(this), 1000);
 		this.plugin.registerInterval(this.focusInterval);
 		this.state = TimerState.Started;
 	}
@@ -41,7 +44,7 @@ export class FocusTimer {
 		if([TimerState.Stopped, TimerState.Paused, TimerState.Completed].includes(this.state) ) return;
 		// If the timer is paused for too long it should get interrupted
 		Logger.log(this, `tick`, this.elapsedTime);
-		this.elapsedTime += 1; //todo: elapsed time should be calculated based on the start time rather than amount of runs to cater for the paused state.
+		this.elapsedTime = Math.floor((Date.now() - this.startTime) / 60000);
 		if(this.elapsedTime == this.focusDurationInMinutes) {
 			this.focusDashCompleted();
 		}
