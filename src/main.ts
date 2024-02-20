@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS: BrainShardSettings = {
 export default class BrainShardPlugin extends Plugin {
 	settings: BrainShardSettings;
 	statusBarEl: HTMLElement;
-	focusTimer:DashTimer;
+	dashTimer:DashTimer;
 
 
 	onTimerTick(elapsed: number, duration:number) {
@@ -34,12 +34,12 @@ export default class BrainShardPlugin extends Plugin {
 		} else {
 			message = `Brain Shard Focus: ${elapsed} minutes of ${duration}.`;
 		}
-		Logger.log(this, message);
+		//Logger.log(this, message);
 		this.statusBarEl.setText(message);
 	}
 
 	onTimerDashCompleted(dashDuration:number) {
-		this.focusTimer.state = TimerState.Completed;
+		this.dashTimer.state = TimerState.Completed;
 		const activeFile:TFile | null = this.app.workspace.getActiveFile();
 		if(activeFile) {
 			this.app.fileManager.processFrontMatter(
@@ -57,9 +57,9 @@ export default class BrainShardPlugin extends Plugin {
 
 		Logger.shouldLog = true;
 
-		this.focusTimer = new DashTimer(this);
-		this.focusTimer.onTick = this.onTimerTick.bind(this);
-		this.focusTimer.onDashComplete = this.onTimerDashCompleted.bind(this);
+		this.dashTimer = new DashTimer(this);
+		this.dashTimer.onTick = this.onTimerTick.bind(this);
+		this.dashTimer.onDashComplete = this.onTimerDashCompleted.bind(this);
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('baby', 'Brain Shard Plugin', (evt: MouseEvent) => {
@@ -67,7 +67,7 @@ export default class BrainShardPlugin extends Plugin {
 			// new Notice('This is a notice!');
 			new StartCounterModal(
 				this.app,
-				this.focusTimer,
+				this.dashTimer,
 				this.settings.defaultDashDuration
 			).open();
 		});
@@ -77,14 +77,18 @@ export default class BrainShardPlugin extends Plugin {
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		this.statusBarEl = this.addStatusBarItem();
 		this.statusBarEl.setText('BrainShard Plugin');
+		this.statusBarEl.addClass("ewt-statusbar-button")
 		this.statusBarEl.onClickEvent((clickEvt: MouseEvent) => {
-			if(this.focusTimer.state == TimerState.Paused) {
+
+			if(![TimerState.Started, TimerState.Resumed, TimerState.Paused].includes(this.dashTimer.state)) return
+
+			if(this.dashTimer.state == TimerState.Paused) {
 				Logger.log(this, 'Message clicked: Resuming the timer');
-				this.focusTimer.resume();
+				this.dashTimer.resume();
 				this.statusBarEl.setText('Brain Shard: Dash resumed');
 			} else {
 				Logger.log(this, 'Message clicked: Pausing the timer');
-				this.focusTimer.pause();
+				this.dashTimer.pause();
 				this.statusBarEl.setText('Brain Shard: Dash paused');
 			}
 		});

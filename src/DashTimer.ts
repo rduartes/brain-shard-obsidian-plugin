@@ -11,7 +11,6 @@ export class DashTimer {
 	state: TimerState;
 	startTime: number;
 	wasPaused:boolean; //This property is used to verify whether a dash was paused, which means that it shouldn't be considered a dash (no rest and no registration of dashes)
-
 	onTick:(elapsed:number, duration:number) => void;
 	onDashComplete: (focusDurationInMinutes: number) => void;
 	constructor(plugin:BrainShardPlugin) {
@@ -43,7 +42,7 @@ export class DashTimer {
 		//If the timer is stopped, paused or completed do not process it's tick
 		if([TimerState.Stopped, TimerState.Paused, TimerState.Completed].includes(this.state) ) return;
 		// If the timer is paused for too long it should get interrupted
-		Logger.log(this, `tick`, this.elapsedTime);
+		//Logger.log(this, `tick`, this.elapsedTime);
 		this.elapsedTime = Math.floor((Date.now() - this.startTime) / 60000);
 		if(this.elapsedTime == this.focusDurationInMinutes) {
 			this.focusDashCompleted();
