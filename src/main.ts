@@ -50,6 +50,7 @@ export default class BrainShardPlugin extends Plugin {
 			);
 		}
 		this.statusBarEl.setText('Well done! Dash completed. Time to rest!');
+		this.statusBarEl.removeClass("mod-clickable");
 	}
 
 	async onload() {
@@ -65,6 +66,7 @@ export default class BrainShardPlugin extends Plugin {
 		const ribbonIconEl = this.addRibbonIcon('baby', 'Brain Shard Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
 			// new Notice('This is a notice!');
+			this.statusBarEl.addClass("mod-clickable");
 			new StartCounterModal(
 				this.app,
 				this.dashTimer,
@@ -77,7 +79,6 @@ export default class BrainShardPlugin extends Plugin {
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		this.statusBarEl = this.addStatusBarItem();
 		this.statusBarEl.setText('BrainShard Plugin');
-		this.statusBarEl.addClass("ewt-statusbar-button")
 		this.statusBarEl.onClickEvent((clickEvt: MouseEvent) => {
 
 			if(![TimerState.Started, TimerState.Resumed, TimerState.Paused].includes(this.dashTimer.state)) return
