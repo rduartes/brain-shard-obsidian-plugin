@@ -3,6 +3,7 @@ import {StartCounterModal} from "src/StartCounterModal";
 import {DashTimer} from "./DashTimer";
 import {Logger} from "./Logger";
 import {TimerState} from "./TimerState";
+import {loadCommands} from "./commands/LoadCommands";
 
 
 // Remember to rename these classes and interfaces!
@@ -102,6 +103,9 @@ export default class BrainShardPlugin extends Plugin {
 				//new StartCounterModal(this.app).open();
 			}
 		});
+
+		loadCommands(this);
+
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
 			id: 'sample-editor-command',
