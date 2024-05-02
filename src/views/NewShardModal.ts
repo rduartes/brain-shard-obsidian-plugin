@@ -18,10 +18,18 @@ export class NewShardModal extends Modal {
 
 		new Setting(contentEl)
 			.setName("Shard Name")
-			.addText((text) =>
+			.addText((text) => {
 				text.onChange((value) => {
 					this.result = value;
-				}))
+				})
+				text.inputEl.addEventListener("keydown", (evt: KeyboardEvent) => {
+					if(evt.key === 'Enter') {
+						evt.preventDefault();
+						this.close();
+						this.onSubmit(this.result);
+					}
+				});
+			})
 			.addButton((btn) =>
 				btn
 					.setButtonText("Create")
@@ -33,6 +41,7 @@ export class NewShardModal extends Modal {
 					)
 			);
 	}
+
 
 	onClose() {
 		const {containerEl} = this;
