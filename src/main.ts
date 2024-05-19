@@ -13,7 +13,7 @@ import {BrainShardSettingsTab} from "./settings/BrainShardSettingsTab";
 
 
 const DEFAULT_SETTINGS: BrainShardSettings = {
-	shardPath: "",
+	shardStorage: "",
 	defaultDashDuration: '25',
 	defaultRestDuration: '5',
 	defaultTimeProperty: 'Effort'
@@ -135,7 +135,7 @@ export default class BrainShardPlugin extends Plugin {
 		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new BrainShardSettingsTab(this.app, this));
+		this.addSettingTab(new BrainShardSettingsTab(this.app, this, this.settings));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
