@@ -1,18 +1,42 @@
 import {App, PluginSettingTab, Setting} from "obsidian";
 import BrainShardPlugin from "../main";
+import {BrainShardSettings} from "./BrainShardSettings";
+import {FolderSuggest} from '../suggesters/FolderSuggester';
 
 export class BrainShardSettingsTab extends PluginSettingTab {
 	plugin: BrainShardPlugin;
+	settings: BrainShardSettings;
 
-	constructor(app: App, plugin: BrainShardPlugin) {
+	constructor(app: App, plugin: BrainShardPlugin, settings:BrainShardSettings) {
 		super(app, plugin);
 		this.plugin = plugin;
+		this.settings = settings;
 	}
 
 	display(): void {
 		const {containerEl} = this;
 
 		containerEl.empty();
+
+		containerEl.createEl('h3', { text: "Shards Configuration" });
+
+		new Setting(containerEl)
+			.setName('Shard folder')
+			.setDesc('New Shards will be stored in this folder')
+			.addSearch(search => {
+				new FolderSuggest(this.app, search.inputEl);
+
+				search
+					.setPlaceholder('Shard storage')
+					.setValue(this.settings.shardStorage)
+					.onChange( async (value) => {
+						this.settings.shardStorage = value;
+						await this.plugin.saveSettings();
+					});
+				}
+			)
+
+		containerEl.createEl('h3', { text: "Dash Configuration" });
 
 		new Setting(containerEl)
 			.setName('Default Dash duration')
@@ -21,7 +45,7 @@ export class BrainShardSettingsTab extends PluginSettingTab {
 				.setPlaceholder('dash duration in minutes')
 				.setValue(this.plugin.settings.defaultDashDuration)
 				.onChange(async (value) => {
-					this.plugin.settings.defaultDashDuration = value;
+					this.settings.defaultDashDuration = value;
 					await this.plugin.saveSettings();
 				}));
 
@@ -32,7 +56,7 @@ export class BrainShardSettingsTab extends PluginSettingTab {
 				.setPlaceholder('Rest duration in minutes')
 				.setValue(this.plugin.settings.defaultRestDuration)
 				.onChange(async (value) => {
-					this.plugin.settings.defaultRestDuration = value;
+					this.settings.defaultRestDuration = value;
 					await this.plugin.saveSettings();
 				}));
 
@@ -43,24 +67,8 @@ export class BrainShardSettingsTab extends PluginSettingTab {
 				.setPlaceholder('Note property')
 				.setValue(this.plugin.settings.defaultTimeProperty)
 				.onChange(async (value) => {
-						this.plugin.settings.defaultTimeProperty = value;
-						await this.plugin.saveSettings();
-					}
-				)
-			)
-
-		//todo: I should replace this with a search component
-		new Setting(containerEl)
-			.setName('Shard Path')
-			.setDesc('This is the vault location where shards will be saved')
-			.addText(text => text
-				.setPlaceholder('Path')
-				.setValue(this.plugin.settings.shardPath)
-				.onChange(async (value) => {
-						this.plugin.settings.shardPath = value;
-						await this.plugin.saveSettings();
-					}
-				)
-			)
+					this.settings.defaultTimeProperty = value;
+					await this.plugin.saveSettings();
+				}));
 	}
 }
