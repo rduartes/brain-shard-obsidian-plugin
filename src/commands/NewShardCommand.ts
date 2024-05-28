@@ -16,7 +16,7 @@ export class NewShardCommand implements Command {
 		console.log("New Shard Command");
 		new NewShardModal(this.app, result => {
 			console.log("New Shard Command", result);
-			this.app.vault.create(this.shardPath, "").then(value => console.log("Shard Created"));
+			this.app.vault.create(`${this.shardPath}/${result}.md`, "").then(value => console.log("Shard Created"));
 		}).open();
 	}
 }
