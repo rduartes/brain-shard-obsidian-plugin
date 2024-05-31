@@ -13,10 +13,14 @@ export class NewShardCommand implements Command {
 	}
 
 	callback(): void {
-		console.log("New Shard Command");
+	console.log("New Shard Command");
 		new NewShardModal(this.app, result => {
 			console.log("New Shard Command", result);
-			this.app.vault.create(`${this.shardPath}/${result}.md`, "").then(value => console.log("Shard Created"));
+			this.app.vault.create(`${this.shardPath}/${result}.md`, "").then(file => {
+				console.log("Shard Created");
+				//Todo: Maybe add a setting to choose wheter the user wants to open the file or not.
+				this.app.workspace.getLeaf().openFile(file)
+			});
 		}).open();
 	}
 }
