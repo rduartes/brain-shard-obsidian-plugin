@@ -13,7 +13,8 @@ import {BrainShardSettingsTab} from "./settings/BrainShardSettingsTab";
 
 
 const DEFAULT_SETTINGS: BrainShardSettings = {
-	shardStorage: "",
+	shardStorage: '',
+	shardTemplate: '',
 	defaultDashDuration: '25',
 	defaultRestDuration: '5',
 	defaultTimeProperty: 'Effort'
@@ -27,7 +28,7 @@ export default class BrainShardPlugin extends Plugin {
 
 	onTimerTick(elapsed: number, duration:number) {
 		
-		let message = '';
+		let message: string;
 
 		if (elapsed == duration -1 ) {
 			message = `Brain Shard Focus: Almost there! Only ${duration - elapsed} minute to go! Hang on, you can do it!`;
