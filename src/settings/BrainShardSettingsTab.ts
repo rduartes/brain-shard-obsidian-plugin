@@ -2,6 +2,7 @@ import {App, PluginSettingTab, Setting} from "obsidian";
 import BrainShardPlugin from "../main";
 import {BrainShardSettings} from "./BrainShardSettings";
 import {FolderSuggest} from '../suggesters/FolderSuggester';
+import {FileSuggest} from "../suggesters/FileSuggester";
 
 export class BrainShardSettingsTab extends PluginSettingTab {
 	plugin: BrainShardPlugin;
@@ -18,7 +19,7 @@ export class BrainShardSettingsTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h3', { text: "Shards Configuration" });
+		containerEl.createEl('h3', { text: "Shard Configuration" });
 
 		new Setting(containerEl)
 			.setName('Shard folder')
@@ -34,7 +35,22 @@ export class BrainShardSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 				}
-			)
+			);
+
+		new Setting(containerEl)
+			.setName('Shard template')
+			.setDesc('Template to be used for new Shard creation')
+			.addSearch(search => {
+				new FileSuggest(this.app, search.inputEl);
+
+				search
+					.setPlaceholder('Shard template')
+					.setValue(this.settings.shardTemplate)
+					.onChange(async (value) => {
+						this.settings.shardTemplate = value;
+						await this.plugin.saveSettings();
+					});
+			});
 
 		containerEl.createEl('h3', { text: "Dash Configuration" });
 
