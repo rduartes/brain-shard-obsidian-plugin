@@ -4,21 +4,9 @@ import {DashTimer} from "./DashTimer";
 import {Logger} from "./Logger";
 import {TimerState} from "./TimerState";
 import {loadCommands} from "./commands/LoadCommands";
-import {BrainShardSettings} from "./settings/BrainShardSettings";
+import {BrainShardSettings, DEFAULT_SETTINGS} from "./settings/BrainShardSettings";
 import {BrainShardSettingsTab} from "./settings/BrainShardSettingsTab";
 
-
-// Remember to rename these classes and interfaces!
-
-
-
-const DEFAULT_SETTINGS: BrainShardSettings = {
-	shardStorage: '',
-	shardTemplate: '',
-	defaultDashDuration: '25',
-	defaultRestDuration: '5',
-	defaultTimeProperty: 'Effort'
-}
 
 export default class BrainShardPlugin extends Plugin {
 	settings: BrainShardSettings;
