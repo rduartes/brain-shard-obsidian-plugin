@@ -52,6 +52,17 @@ export class BrainShardSettingsTab extends PluginSettingTab {
 					});
 			});
 
+		new Setting(containerEl)
+			.setName('Parent Shard property')
+			.setDesc('This is the document property where a reference to the parent shard is stored.')
+			.addText(text => text
+				.setPlaceholder(this.settings.parentShardProp)
+				.setValue(this.plugin.settings.parentShardProp)
+				.onChange(async (value) => {
+					this.settings.parentShardProp = value;
+					await this.plugin.saveSettings();
+				}));
+
 		containerEl.createEl('h3', { text: "Dash Configuration" });
 
 		new Setting(containerEl)
