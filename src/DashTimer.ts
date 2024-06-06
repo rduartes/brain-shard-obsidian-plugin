@@ -13,6 +13,7 @@ export class DashTimer {
 	wasPaused:boolean; //This property is used to verify whether a dash was paused, which means that it shouldn't be considered a dash (no rest and no registration of dashes)
 	onTick:(elapsed:number, duration:number) => void;
 	onDashComplete: (focusDurationInMinutes: number) => void;
+
 	constructor(plugin:BrainShardPlugin) {
 		this.plugin = plugin;
 		this.state = TimerState.Stopped;
