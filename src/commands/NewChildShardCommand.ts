@@ -1,6 +1,5 @@
 import {App, Command, TFile} from "obsidian";
 import {NewShardModal} from "../views/NewShardModal";
-import {Logger} from "../Logger";
 
 export class NewChildShardCommand implements Command {
 	id = "newChildShardCommand";
@@ -8,11 +7,13 @@ export class NewChildShardCommand implements Command {
 	app: App;
 	shardPath: string;
 	shardTemplate: string;
+	shardParentProperty: string;
 
-	constructor(app: App, shardPath: string, shardTemplate: string) {
+	constructor(app: App, shardPath: string, shardTemplate: string, shardParentProp: string) {
 		this.app = app;
 		this.shardPath = shardPath;
 		this.shardTemplate = shardTemplate;
+		this.shardParentProperty = shardParentProp;
 	}
 
 	checkCallback(checking: boolean): boolean | void {
@@ -21,7 +22,7 @@ export class NewChildShardCommand implements Command {
 		const activeFile = this.app.workspace.getActiveFile();
 		const fileContents= activeFile ? this.app.metadataCache.getFileCache(activeFile) : null;
 
-		if(fileContents?.frontmatter && 'Shard' in fileContents.frontmatter) {
+		if(activeFile && fileContents?.frontmatter && 'Shard' in fileContents.frontmatter) {
 			if(!checking) {
 
 				new NewShardModal(this.app, async result => {
@@ -34,7 +35,11 @@ export class NewChildShardCommand implements Command {
 					this.app.vault.create(`${this.shardPath}/${result}.md`, templateContent).then(file => {
 						console.log("Child Shard Created");
 						//Todo: Maybe add a setting to choose whether the user wants to open the file or not.
-						this.app.workspace.getLeaf().openFile(file)
+						this.app.workspace.getLeaf().openFile(file);
+						//set the parent shard property.
+						this.app.fileManager.processFrontMatter(file, (properties: any) => {
+							properties[this.shardParentProperty] = `[[ ${this.app.metadataCache.fileToLinktext(activeFile, file.path)}]]`;
+						});
 					});
 				}).open();
 			} else {
@@ -43,11 +48,5 @@ export class NewChildShardCommand implements Command {
 		} else {
 			return false;
 		}
-	}
-
-	callback()  {
-
-
-
 	}
 }
