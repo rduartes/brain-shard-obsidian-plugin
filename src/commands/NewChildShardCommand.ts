@@ -38,7 +38,7 @@ export class NewChildShardCommand implements Command {
 						this.app.workspace.getLeaf().openFile(file);
 						//set the parent shard property.
 						this.app.fileManager.processFrontMatter(file, (properties: any) => {
-							properties[this.shardParentProperty] = `[[ ${this.app.metadataCache.fileToLinktext(activeFile, file.path)}]]`;
+							properties[this.shardParentProperty] = `[[${this.app.metadataCache.fileToLinktext(activeFile, file.path)}]]`;
 						});
 					});
 				}).open();
