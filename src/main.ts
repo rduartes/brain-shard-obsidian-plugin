@@ -1,4 +1,4 @@
-import {Plugin, TFile} from 'obsidian';
+import {Plugin, TFile, WorkspaceLeaf} from 'obsidian';
 import {StartCounterModal} from "src/StartCounterModal";
 import {DashTimer} from "./DashTimer";
 import {Logger} from "./Logger";
@@ -6,6 +6,7 @@ import {TimerState} from "./TimerState";
 import {loadCommands, refreshSettings} from "./commands/LoadCommands";
 import {BrainShardSettings, DEFAULT_SETTINGS} from "./settings/BrainShardSettings";
 import {BrainShardSettingsTab} from "./settings/BrainShardSettingsTab";
+import {ExampleView, VIEW_TYPE_EXAMPLE} from "./ExampleView";
 
 
 export default class BrainShardPlugin extends Plugin {
@@ -56,11 +57,12 @@ export default class BrainShardPlugin extends Plugin {
 			// Called when the user clicks the icon.
 			// new Notice('This is a notice!');
 			this.statusBarEl.addClass("mod-clickable");
-			new StartCounterModal(
+			/*new StartCounterModal(
 				this.app,
 				this.dashTimer,
 				this.settings.defaultDashDuration
-			).open();
+			).open();*/
+			this.activateView();
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -134,10 +136,33 @@ export default class BrainShardPlugin extends Plugin {
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		// this.registerInterval(window.setInterval(() => Logger.log('setInterval'), 5 * 60 * 1000));
+
+		//Example View
+		this.registerView(VIEW_TYPE_EXAMPLE, (leaf) => new ExampleView(leaf));
 	}
 
 	onunload() {
 
+	}
+
+	async activateView() {
+		const { workspace } = this.app;
+
+		let leaf: WorkspaceLeaf | null = null;
+		const leaves = workspace.getLeavesOfType(VIEW_TYPE_EXAMPLE);
+
+		if (leaves.length > 0) {
+			// A leaf with our view already exists, use that
+			leaf = leaves[0];
+		} else {
+			// Our view could not be found in the workspace, create a new leaf
+			// in the left sidebar for it
+			leaf = workspace.getLeftLeaf(false);
+			await leaf!.setViewState({ type: VIEW_TYPE_EXAMPLE, active: true });
+		}
+
+		// "Reveal" the leaf in case it is in a collapsed sidebar
+		workspace.revealLeaf(leaf!);
 	}
 
 	async loadSettings() {
