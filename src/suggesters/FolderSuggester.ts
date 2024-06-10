@@ -1,7 +1,11 @@
-import {AbstractInputSuggest, TFolder} from "obsidian";
+import {AbstractInputSuggest, type App, TFolder} from "obsidian";
 
 export class FolderSuggest extends AbstractInputSuggest<TFolder> {
 	textInputEl: HTMLInputElement;
+
+	constructor(app:App, inputEl: HTMLInputElement) {
+		super(app, inputEl);
+	}
 
 	protected getSuggestions(query: string): TFolder[] | Promise<TFolder[]> {
 		const result: TFolder[] = [];

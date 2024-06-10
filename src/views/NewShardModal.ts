@@ -7,6 +7,7 @@ export class NewShardModal extends Modal {
 	constructor(app: App, onSubmit: (result: string) => void) {
 		super(app);
 		this.onSubmit = onSubmit;
+		this.result = "";
 	}
 
 
