@@ -157,7 +157,7 @@ export default class BrainShardPlugin extends Plugin {
 		} else {
 			// Our view could not be found in the workspace, create a new leaf
 			// in the left sidebar for it
-			leaf = workspace.getLeftLeaf(false);
+			leaf = workspace.getLeaf(true);
 			await leaf!.setViewState({ type: VIEW_TYPE_EXAMPLE, active: true });
 		}
 
