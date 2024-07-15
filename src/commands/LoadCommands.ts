@@ -13,7 +13,7 @@ let resolveShardCommand: ResolveShardCommand;
 export function loadCommands(plugin: BrainShardPlugin, settings: BrainShardSettings) {
 	newShardCommand = plugin.addCommand(new NewShardCommand(plugin.app, settings.shardStorage, settings.shardTemplate)) as NewShardCommand;
 	newChildShardCommand = plugin.addCommand(new NewChildShardCommand(plugin.app, settings.shardStorage, settings.shardTemplate, settings.parentShardProp)) as NewChildShardCommand;
-	resolveShardCommand = plugin.addCommand(new ResolveShardCommand()) as ResolveShardCommand;
+	resolveShardCommand = plugin.addCommand(new ResolveShardCommand(plugin.app)) as ResolveShardCommand;
 
 }
 
