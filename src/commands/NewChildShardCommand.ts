@@ -1,5 +1,6 @@
 import {App, Command, TFile} from "obsidian";
 import {NewShardModal} from "../views/NewShardModal";
+import {isActiveFileAShard} from '../validators/ShardValidators';
 
 export class NewChildShardCommand implements Command {
 	id = "newChildShardCommand";
@@ -19,10 +20,7 @@ export class NewChildShardCommand implements Command {
 	checkCallback(checking: boolean): boolean | void {
 		//Check if the current file is valid
 
-		const activeFile = this.app.workspace.getActiveFile();
-		const fileContents= activeFile ? this.app.metadataCache.getFileCache(activeFile) : null;
-
-		if(activeFile && fileContents?.frontmatter && 'Shard' in fileContents.frontmatter) {
+		if(isActiveFileAShard()) {
 			if(!checking) {
 
 				new NewShardModal(this.app, async result => {
@@ -38,7 +36,8 @@ export class NewChildShardCommand implements Command {
 						this.app.workspace.getLeaf().openFile(file);
 						//set the parent shard property.
 						this.app.fileManager.processFrontMatter(file, (properties: any) => {
-							properties[this.shardParentProperty] = `[[${this.app.metadataCache.fileToLinktext(activeFile, file.path)}]]`;
+							const activeFile = this.app.workspace.getActiveFile();
+							properties[this.shardParentProperty] = `[[${this.app.metadataCache.fileToLinktext(activeFile!, file.path)}]]`;
 						});
 					});
 				}).open();
