@@ -19,6 +19,7 @@ export class ChooseDateModal extends Modal {
 		new Setting(contentEl)
 			.setName("Resolution Date")
 			.addText((text) => {
+				text.setValue(new Date().toJSON().substring(0, 10));
 				text.onChange((value:string) => {
 					this.result = value
 				})
