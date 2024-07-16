@@ -17,7 +17,9 @@ export class ResolveShardCommand implements Command {
 			if (!checking) {
 				console.log('Resolving the Shard');
 				//1. Ask the user to provide a resolution date.
-				new ChooseDateModal(this.app).open();
+				new ChooseDateModal(this.app, (result: string) => {
+					console.log(result);
+				}).open();
 				//2. Set the note's Status property to "Resolved".
 				//3. Set the note's Resolved property to the date indicated by the user
 			} else {
