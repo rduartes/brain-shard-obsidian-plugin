@@ -28,6 +28,7 @@ export class NewShardCommand implements Command {
 			this.app.vault.create(`${this.shardPath}/${result}.md`, templateContent).then(file => {
 				console.log("Shard Created");
 				//Todo: Maybe add a setting to choose whether the user wants to open the file or not.
+				//Todo: Maybe open the created file in a new editor by passin 'tab' to getLeaf()
 				this.app.workspace.getLeaf().openFile(file)
 			});
 		}).open();

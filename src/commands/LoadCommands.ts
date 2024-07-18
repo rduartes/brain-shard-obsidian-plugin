@@ -2,15 +2,19 @@ import {NewShardCommand} from "./NewShardCommand";
 import BrainShardPlugin from "../main";
 import {NewChildShardCommand} from "./NewChildShardCommand";
 import {BrainShardSettings} from "../settings/BrainShardSettings";
+import {ResolveShardCommand} from './ResolveShardCommand';
 
 let newShardCommand: NewShardCommand;
 let newChildShardCommand: NewChildShardCommand;
+let resolveShardCommand: ResolveShardCommand;
 
 //todo: Commands should check for the settings they depend on before executing. This should be done within the command
 //and can be shared across different command. For instance Both the new shard and child shard depend on the shard storage setting
 export function loadCommands(plugin: BrainShardPlugin, settings: BrainShardSettings) {
 	newShardCommand = plugin.addCommand(new NewShardCommand(plugin.app, settings.shardStorage, settings.shardTemplate)) as NewShardCommand;
 	newChildShardCommand = plugin.addCommand(new NewChildShardCommand(plugin.app, settings.shardStorage, settings.shardTemplate, settings.parentShardProp)) as NewChildShardCommand;
+	resolveShardCommand = plugin.addCommand(new ResolveShardCommand(plugin.app)) as ResolveShardCommand;
+
 }
 
 export function refreshSettings(settings: BrainShardSettings) {
@@ -19,4 +23,5 @@ export function refreshSettings(settings: BrainShardSettings) {
 	newChildShardCommand.shardPath = settings.shardStorage;
 	newChildShardCommand.shardTemplate = settings.shardTemplate;
 	newChildShardCommand.shardParentProperty = settings.parentShardProp;
+	resolveShardCommand.id = 'ResolvedShardCommand'
 }
