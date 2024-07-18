@@ -19,18 +19,29 @@ export class ResolveShardCommand implements Command {
 				//1. Ask the user to provide a resolution date.
 				new ChooseDateModal(this.app, (result: string) => {
 					console.log(result);
-					//2. Set the note's Status property to "Resolved".
-					const activeFile: TFile | null = this.app.workspace.getActiveFile();
-					this.app.fileManager.processFrontMatter(activeFile!, (props) => {
-						props['Status'] = 'Resolved';
-						//3. Set the note's Resolved property to the date indicated by the user
-					});
+					this.updateFrontMatter(result).then(() => console.log('Frontmatter updated'));
 				}).open();
 			} else {
 				return true
 			}
 		} else {
 			return false
+		}
+	}
+
+	private async updateFrontMatter(resolutionDate: string) {
+		const activeFile: TFile | null = this.app.workspace.getActiveFile();
+		if(activeFile) {
+			try {
+				await this.app.fileManager.processFrontMatter(activeFile, frontmatter => {
+					frontmatter['Status'] = 'Resolved';
+					frontmatter['Resolved'] = resolutionDate;
+				})
+			} catch (error) {
+				console.log('Error processing frontmatter', error);
+			}
+		} else {
+			console.log('Could not access a valid active file');
 		}
 	}
 
