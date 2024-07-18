@@ -1,7 +1,7 @@
 {
 	"id": "brain-shard-plugin",
 	"name": "Brain Shard Plugin",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"minAppVersion": "1.0.0",
 	"description": "A plugin that helps turn Obsidian into an effective knowledge and task management system",
 	"author": "Obsidian",
